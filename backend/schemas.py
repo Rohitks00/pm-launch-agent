@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional, List, Any
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List, Any, Literal
 from datetime import datetime
 
 # --- Brand Kit ---
@@ -18,8 +18,7 @@ class BrandKitOut(BrandKitCreate):
     id: int
     created_at: datetime
     updated_at: datetime
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- Runs ---
 
@@ -32,26 +31,24 @@ class RunOut(BaseModel):
     brand_kit_id: int
     input_type: str
     raw_input: str
-    filename: Optional[str]
+    filename: Optional[str] = None
     status: str
-    progress: dict
+    progress: dict = {}
     created_at: datetime
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- Structured Brief ---
 
 class StructuredBriefOut(BaseModel):
     id: int
     run_id: int
-    product_name: Optional[str]
-    launch_date: Optional[str]
+    product_name: Optional[str] = None
+    launch_date: Optional[str] = None
     key_features: List[dict]
     target_audience: str
     launch_goals: str
     tone_notes: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class StructuredBriefUpdate(BaseModel):
     product_name: Optional[str] = None
@@ -69,11 +66,10 @@ class OutputOut(BaseModel):
     output_type: str
     content: Any
     status: str
-    feedback: Optional[str]
+    feedback: Optional[str] = None
     created_at: datetime
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ApproveRequest(BaseModel):
-    status: str  # approved | rejected
+    status: Literal["approved", "rejected"]
     feedback: Optional[str] = None
