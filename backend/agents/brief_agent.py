@@ -26,7 +26,7 @@ Schema:
 
     response = await client.messages.create(
         model=MODEL, max_tokens=4000,
-        thinking={"type": "enabled", "budget_tokens": 1500},
+        thinking={"type": "adaptive"},
         system=system,
         messages=[{"role": "user", "content": user_prompt}],
     )

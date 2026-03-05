@@ -34,7 +34,7 @@ Schema:
 
     response = await client.messages.create(
         model=MODEL, max_tokens=6000,
-        thinking={"type": "enabled", "budget_tokens": 2000},
+        thinking={"type": "adaptive"},
         system=system,
         messages=[{"role": "user", "content": user_prompt}],
     )
