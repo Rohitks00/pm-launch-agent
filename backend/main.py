@@ -6,6 +6,7 @@ load_dotenv()
 
 from database import engine, Base
 import models  # noqa
+from routes import brand_kit
 
 Base.metadata.create_all(bind=engine)
 
@@ -18,6 +19,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(brand_kit.router)
 
 @app.get("/api/health")
 def health():
