@@ -10,16 +10,6 @@ TEST_DB = "sqlite:///./test_runs.db"
 engine = create_engine(TEST_DB, connect_args={"check_same_thread": False})
 TestingSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-@pytest.fixture(autouse=True)
-def setup_db():
-    Base.metadata.create_all(bind=engine)
-    db = TestingSession()
-    kit = models.BrandKit(name="Test Kit")
-    db.add(kit); db.commit()
-    db.close()
-    yield
-    Base.metadata.drop_all(bind=engine)
-
 def override_get_db():
     db = TestingSession()
     try:
@@ -27,7 +17,18 @@ def override_get_db():
     finally:
         db.close()
 
-app.dependency_overrides[get_db] = override_get_db
+@pytest.fixture(autouse=True)
+def setup_db():
+    app.dependency_overrides[get_db] = override_get_db
+    Base.metadata.create_all(bind=engine)
+    db = TestingSession()
+    kit = models.BrandKit(name="Test Kit")
+    db.add(kit); db.commit()
+    db.close()
+    yield
+    Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.pop(get_db, None)
+
 client = TestClient(app)
 
 def test_create_run_paste():
