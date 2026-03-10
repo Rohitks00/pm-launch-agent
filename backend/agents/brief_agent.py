@@ -25,11 +25,15 @@ Schema:
 {json.dumps(OUTPUT_SCHEMA, indent=2)}"""
 
     response = await client.messages.create(
-        model=MODEL, max_tokens=4000,
+        model=MODEL, max_tokens=8000,
         thinking={"type": "adaptive"},
         system=system,
         messages=[{"role": "user", "content": user_prompt}],
     )
+
+    if response.stop_reason == "max_tokens":
+        raise RuntimeError("Brief agent response was truncated (max_tokens reached).")
+
     raw_text = next((b.text for b in response.content if b.type == "text"), "")
     if raw_text.startswith("```"):
         lines = raw_text.split("\n")

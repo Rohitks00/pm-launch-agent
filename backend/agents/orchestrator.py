@@ -21,13 +21,17 @@ async def run_orchestrator(raw_input: str, brand_kit_name: str, voice_tone: str)
 
     response = await client.messages.create(
         model=MODEL,
-        max_tokens=4000,
+        max_tokens=8000,
         thinking={"type": "adaptive"},
         system=SYSTEM,
         messages=[{"role": "user", "content": user_prompt}],
     )
 
+    if response.stop_reason == "max_tokens":
+        raise RuntimeError("Orchestrator response was truncated (max_tokens reached). Try a shorter input document.")
+
     raw_text = next((b.text for b in response.content if b.type == "text"), "")
+    # Strip markdown code fences if present (```json ... ``` or ``` ... ```)
     if raw_text.startswith("```"):
         lines = raw_text.split("\n")
         raw_text = "\n".join(lines[1:-1]) if lines[-1].strip() == "```" else "\n".join(lines[1:])
