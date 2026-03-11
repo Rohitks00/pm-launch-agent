@@ -56,6 +56,35 @@ export function MarketingCopyPanel({ output }: { output: Output }) {
           </div>
         ))}
       </section>
+      {c.press_release && (
+        <section className="space-y-2">
+          <h3 className="font-medium text-sm uppercase text-muted-foreground">Press Release</h3>
+          <div className="border rounded-lg p-4 space-y-2">
+            <p className="font-medium">{c.press_release.headline}</p>
+            <p className="text-sm whitespace-pre-wrap">{c.press_release.body}</p>
+            {c.press_release.boilerplate && (
+              <p className="text-xs text-muted-foreground border-t pt-2 mt-2">{c.press_release.boilerplate}</p>
+            )}
+          </div>
+        </section>
+      )}
+      {c.fact_sheet && (
+        <section className="space-y-2">
+          <h3 className="font-medium text-sm uppercase text-muted-foreground">Fact Sheet</h3>
+          <div className="border rounded-lg p-4 space-y-2">
+            <p><span className="font-medium">Company:</span> {c.fact_sheet.company}</p>
+            <p><span className="font-medium">Product:</span> {c.fact_sheet.product}</p>
+            {c.fact_sheet.key_facts?.length > 0 && (
+              <ul className="text-sm list-disc list-inside space-y-1">
+                {c.fact_sheet.key_facts.map((f: string, i: number) => <li key={i}>{f}</li>)}
+              </ul>
+            )}
+            {c.fact_sheet.contact && (
+              <p className="text-sm text-muted-foreground">Contact: {c.fact_sheet.contact}</p>
+            )}
+          </div>
+        </section>
+      )}
       {status !== "approved" && (
         <div className="flex gap-2">
           <Button onClick={approve}>Approve</Button>
