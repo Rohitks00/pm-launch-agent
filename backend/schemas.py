@@ -25,6 +25,7 @@ class BrandKitOut(BrandKitCreate):
 class RunCreatePaste(BaseModel):
     brand_kit_id: int
     raw_input: str
+    enabled_outputs: List[str] = []
 
 class RunOut(BaseModel):
     id: int
@@ -34,6 +35,7 @@ class RunOut(BaseModel):
     filename: Optional[str] = None
     status: str
     progress: dict = {}
+    enabled_outputs: List[str] = []
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 

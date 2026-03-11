@@ -54,3 +54,17 @@ def test_get_run():
 def test_get_run_not_found():
     response = client.get("/api/runs/9999")
     assert response.status_code == 404
+
+def test_create_run_stores_enabled_outputs():
+    response = client.post("/api/runs", json={
+        "brand_kit_id": 1,
+        "raw_input": "test",
+        "enabled_outputs": ["email", "hero_image"],
+    })
+    assert response.status_code == 200
+    assert response.json()["enabled_outputs"] == ["email", "hero_image"]
+
+def test_enabled_outputs_defaults_to_empty():
+    response = client.post("/api/runs", json={"brand_kit_id": 1, "raw_input": "test"})
+    assert response.status_code == 200
+    assert response.json()["enabled_outputs"] == []

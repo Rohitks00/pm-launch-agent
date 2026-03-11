@@ -22,3 +22,25 @@ async def test_brief_agent_returns_asset_list():
     assert len(result["assets"]) == 3
     assert result["assets"][0]["name"] == "Launch Hero Banner"
     assert "dimensions" in result["assets"][0]
+
+@pytest.mark.asyncio
+async def test_brief_agent_only_generates_selected_types():
+    hero_only = {"assets": [{"name": "Hero Image", "format": "PNG", "dimensions": "1440x800", "placement": "Landing page", "notes": "Primary color background"}]}
+    mock_message = MagicMock()
+    mock_message.stop_reason = "end_turn"
+    mock_text_block = MagicMock()
+    mock_text_block.type = "text"
+    mock_text_block.text = json.dumps(hero_only)
+    mock_message.content = [mock_text_block]
+
+    with patch("agents.brief_agent.client") as mock_client:
+        mock_client.messages.create = AsyncMock(return_value=mock_message)
+        result = await run_brief_agent(BRIEF, BRAND_KIT, enabled_asset_types=["hero_image"])
+
+    assets = result.get("assets", [])
+    assert len(assets) >= 1
+    # Verify the instruction was passed — check the prompt content
+    call_args = mock_client.messages.create.call_args
+    messages = call_args.kwargs.get("messages") or call_args.args[0] if call_args.args else []
+    user_content = next((m["content"] for m in (call_args.kwargs.get("messages", [])) if m["role"] == "user"), "")
+    assert "hero_image" in user_content

@@ -25,6 +25,7 @@ class Run(Base):
     filename = Column(String, nullable=True)
     status = Column(String, default="processing")  # processing | review | approved | rejected
     progress = Column(JSON, default=dict)  # {"orchestrator": "pending|running|done", ...}
+    enabled_outputs = Column(JSON, default=list)  # e.g. ["email", "hero_image"]
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 

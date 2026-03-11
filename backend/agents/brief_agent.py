@@ -6,7 +6,11 @@ MODEL = "claude-opus-4-6"
 
 OUTPUT_SCHEMA = {"assets": [{"name": "Asset name", "format": "PNG or SVG", "dimensions": "WxH in pixels", "placement": "Where it will be used", "notes": "Designer notes: colors, typography, content direction"}]}
 
-async def run_brief_agent(brief: dict, brand_kit: dict, feedback: str = "") -> dict:
+async def run_brief_agent(brief: dict, brand_kit: dict, feedback: str = "", enabled_asset_types: list = None) -> dict:
+    asset_type_instruction = ""
+    if enabled_asset_types:
+        asset_type_instruction = f"\nOnly generate specs for these asset types: {', '.join(enabled_asset_types)}. Do not add other asset types."
+
     system = f"""You are a creative producer. Specify exactly what design assets a designer needs for this product launch.
 Infer assets from the launch goals and channels mentioned. Be precise — designers act on these specs directly.
 Brand colors: {json.dumps(brand_kit.get("colors", {}))}
@@ -20,6 +24,7 @@ Target Audience: {brief["target_audience"]}
 Launch Goals: {brief["launch_goals"]}
 Key Features: {json.dumps(brief["key_features"], indent=2)}
 {f"Reviewer feedback to address: {feedback}" if feedback else ""}
+{asset_type_instruction}
 
 Schema:
 {json.dumps(OUTPUT_SCHEMA, indent=2)}"""

@@ -1,3 +1,4 @@
+import json as _json
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List
@@ -13,6 +14,7 @@ async def create_run_paste(req: schemas.RunCreatePaste, background_tasks: Backgr
         brand_kit_id=req.brand_kit_id,
         input_type="paste",
         raw_input=req.raw_input,
+        enabled_outputs=req.enabled_outputs,
         status="processing",
         progress={"orchestrator": "pending", "copy_agent": "pending", "brief_agent": "pending"},
     )
@@ -23,14 +25,25 @@ async def create_run_paste(req: schemas.RunCreatePaste, background_tasks: Backgr
     return run
 
 @router.post("/api/runs/upload", response_model=schemas.RunOut)
-async def create_run_upload(background_tasks: BackgroundTasks, brand_kit_id: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def create_run_upload(
+    background_tasks: BackgroundTasks,
+    brand_kit_id: int = Form(...),
+    enabled_outputs: str = Form(default="[]"),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
     content = await file.read()
     raw_input = file_extractor.extract_text_from_bytes(content, file.filename)
+    try:
+        enabled_list = _json.loads(enabled_outputs)
+    except Exception:
+        enabled_list = []
     run = models.Run(
         brand_kit_id=brand_kit_id,
         input_type="file",
         raw_input=raw_input,
         filename=file.filename,
+        enabled_outputs=enabled_list,
         status="processing",
         progress={"orchestrator": "pending", "copy_agent": "pending", "brief_agent": "pending"},
     )
